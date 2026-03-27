@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan d'implémentation — العيادة الذكية · أمل</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Tajawal:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF7F2;
+  --cream-dark: #F0EBE3;
+  --cream-mid: #E8E0D5;
+  --maroon: #8D1B3D;
+  --maroon-light: #A8204A;
+  --maroon-pale: rgba(141,27,61,0.08);
+  --gold: #9A6E1A;
+  --gold-light: #B8860B;
+  --gold-pale: rgba(154,110,26,0.08);
+  --teal: #0A6B6B;
+  --teal-light: #0A8080;
+  --teal-pale: rgba(10,107,107,0.08);
+  --blue: #1A4A80;
+  --blue-pale: rgba(26,74,128,0.07);
+  --green: #1A7A3C;
+  --green-pale: rgba(26,122,60,0.08);
+  --text-dark: #1A1210;
+  --text-mid: rgba(26,18,16,0.65);
+  --text-muted: rgba(26,18,16,0.38);
+  --border: rgba(141,27,61,0.12);
+  --shadow-sm: 0 2px 12px rgba(26,18,16,0.06);
+  --shadow-md: 0 4px 24px rgba(26,18,16,0.09);
+  --shadow-lg: 0 8px 40px rgba(26,18,16,0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  overflow-x: hidden;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  background: linear-gradient(150deg, #3D0A1E 0%, #6B1230 35%, #8D1B3D 65%, #6B1230 100%);
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 40px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%);
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  margin-bottom: 28px;
+  font-family: 'DM Mono', monospace;
+}
+
+.hero-flag { font-size: 40px; margin-bottom: 16px; display: block; }
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+
+.hero-title .arabic {
+  font-family: 'Cairo', sans-serif;
+  color: #E8CC7A;
+  display: block;
+  font-size: 0.7em;
+  margin-top: 8px;
+}
+
+.hero-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 48px;
+  letter-spacing: 1px;
+}
+
+.hero-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 48px;
+}
+
+.pill {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  padding: 6px 16px;
+  font-family: 'DM Mono', monospace;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.h-stat {
+  padding: 20px 28px;
+  border-right: 1px solid rgba(255,255,255,0.12);
+  text-align: center;
+  min-width: 120px;
+}
+.h-stat:last-child { border-right: none; }
+.h-stat .n {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #E8CC7A;
+  display: block;
+}
+.h-stat .l {
+  font-size: 10px;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 3px;
+}
+
+/* ═══ LAYOUT ═══ */
+.page-wrapper {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* ═══ RULE BANNER ═══ */
+.rule-banner {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--maroon);
+  padding: 28px 36px;
+  margin: 60px 0 0;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.rule-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.rule-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--maroon); margin-bottom: 6px; }
+.rule-text { font-size: 14.5px; color: #2E2420; line-height: 1.75; }
+
+/* ═══ SECTION HEADER ═══ */
+.sec-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--maroon);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 80px;
+}
+
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 900;
+  color: var(--text-dark);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.sec-title .accent { color: var(--maroon); }
+
+/* ═══ WEEK CARDS ═══ */
+.weeks-section { padding: 80px 0 20px; }
+
+.week-block {
+  margin-bottom: 48px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+.week-block:hover { box-shadow: var(--shadow-md); }
+
+.week-header {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.week-num {
+  width: 80px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 900;
+  border-right: 1px solid var(--border);
+}
+
+.week-1 .week-num { background: var(--gold-pale); color: var(--gold); }
+.week-2 .week-num { background: var(--teal-pale); color: var(--teal); }
+.week-3 .week-num { background: var(--maroon-pale); color: var(--maroon); }
+.week-4 .week-num { background: var(--blue-pale); color: var(--blue); }
+.week-5 .week-num { background: var(--green-pale); color: var(--green); }
+
+.week-num .sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.week-info { flex: 1; padding: 20px 28px; }
+.week-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+.week-goal {
+  font-size: 14px;
+  color: #3A2E2A;
+  line-height: 1.65;
+}
+
+.week-tag {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-left: 1px solid var(--border);
+  min-width: 140px;
+}
+.week-tag .tag-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.week-tag .tag-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+/* ═══ DAYS ═══ */
+.days-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.day-block {
+  padding: 24px 28px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.day-block:nth-child(even) { border-right: none; }
+.day-block:last-child, .day-block:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+.day-block:nth-last-child(-n+2) { border-bottom: none; }
+
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.day-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 3px 10px;
+  letter-spacing: 1px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.week-1 .day-pill { background: var(--gold-pale); color: var(--gold); border: 1px solid rgba(154,110,26,0.2); }
+.week-2 .day-pill { background: var(--teal-pale); color: var(--teal); border: 1px solid rgba(10,107,107,0.2); }
+.week-3 .day-pill { background: var(--maroon-pale); color: var(--maroon); border: 1px solid rgba(141,27,61,0.2); }
+.week-4 .day-pill { background: var(--blue-pale); color: var(--blue); border: 1px solid rgba(26,74,128,0.15); }
+.week-5 .day-pill { background: var(--green-pale); color: var(--green); border: 1px solid rgba(26,122,60,0.2); }
+
+.day-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.3;
+}
+
+.day-tasks { list-style: none; }
+.day-tasks li {
+  font-size: 14px;
+  color: #2E2420;
+  line-height: 1.7;
+  padding: 5px 0;
+  padding-right: 14px;
+  border-bottom: 1px solid rgba(26,18,16,0.06);
+  position: relative;
+}
+.day-tasks li:last-child { border-bottom: none; }
+.day-tasks li::before {
+  content: '—';
+  color: rgba(26,18,16,0.35);
+  font-size: 11px;
+  margin-right: 7px;
+}
+
+.day-tasks li.critical {
+  color: var(--maroon);
+  font-weight: 700;
+}
+.day-tasks li.critical::before { content: '⚡'; font-size: 11px; }
+
+/* ═══ JALON ═══ */
+.jalon-bar {
+  padding: 18px 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.week-1 .jalon-bar { background: rgba(154,110,26,0.04); border-top-color: rgba(154,110,26,0.15); }
+.week-2 .jalon-bar { background: rgba(10,107,107,0.04); border-top-color: rgba(10,107,107,0.15); }
+.week-3 .jalon-bar { background: var(--maroon-pale); border-top-color: rgba(141,27,61,0.18); }
+.week-4 .jalon-bar { background: rgba(26,74,128,0.04); border-top-color: rgba(26,74,128,0.15); }
+.week-5 .jalon-bar { background: var(--green-pale); border-top-color: rgba(26,122,60,0.15); }
+
+.jalon-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.jalon-content { flex: 1; }
+.jalon-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.jalon-text {
+  font-size: 14px;
+  color: #2E2420;
+  line-height: 1.75;
+}
+.jalon-text strong { color: var(--text-dark); }
+
+/* ═══ ARABIC DIALOGUE in week blocks ═══ */
+.ar-note {
+  background: rgba(154,110,26,0.04);
+  border-right: 3px solid var(--gold);
+  padding: 10px 14px;
+  margin: 8px 0;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  color: var(--gold);
+  direction: rtl;
+  line-height: 1.8;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ═══ WEEK 5 PITCH SECTION ═══ */
+.pitch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.pitch-card {
+  padding: 24px 28px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.pitch-card:nth-child(even) { border-right: none; }
+.pitch-card:nth-last-child(-n+2) { border-bottom: none; }
+
+.pitch-order {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--green);
+  opacity: 0.15;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.pitch-school {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+.pitch-why {
+  font-size: 14px;
+  color: #3A2E2A;
+  line-height: 1.7;
+}
+
+/* ═══ HARDWARE SECTION ═══ */
+.hardware-section { padding: 80px 0; }
+
+.hw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-top: 40px;
+}
+
+.hw-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s;
+}
+.hw-card:hover { box-shadow: var(--shadow-md); }
+.hw-card.featured { border-top: 3px solid var(--maroon); }
+
+.hw-badge {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.hw-badge.recommended { background: var(--maroon-pale); color: var(--maroon); border: 1px solid rgba(141,27,61,0.2); }
+.hw-badge.available { background: var(--green-pale); color: var(--green); border: 1px solid rgba(26,122,60,0.2); }
+.hw-badge.qatar { background: var(--blue-pale); color: var(--blue); border: 1px solid rgba(26,74,128,0.15); }
+
+.hw-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.hw-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--maroon);
+  margin-bottom: 16px;
+}
+.hw-price .currency { font-size: 16px; vertical-align: super; }
+.hw-price .note { font-family: 'Tajawal', sans-serif; font-size: 12px; color: var(--text-muted); font-weight: 400; }
+
+.hw-specs { list-style: none; margin-bottom: 20px; }
+.hw-specs li {
+  font-size: 13.5px;
+  color: #2E2420;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(26,18,16,0.06);
+  display: flex;
+  gap: 8px;
+}
+.hw-specs li:last-child { border-bottom: none; }
+.hw-specs li .spec-label { color: rgba(26,18,16,0.5); font-size: 12px; min-width: 100px; flex-shrink: 0; }
+.hw-specs li .spec-val { color: var(--text-dark); font-weight: 500; }
+
+.hw-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--maroon);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 9px 18px;
+  text-decoration: none;
+  font-family: 'DM Mono', monospace;
+  transition: background 0.2s;
+}
+.hw-link:hover { background: var(--maroon-light); }
+.hw-link.secondary {
+  background: transparent;
+  color: var(--maroon);
+  border: 1px solid var(--maroon);
+  margin-left: 8px;
+}
+.hw-link.secondary:hover { background: var(--maroon-pale); }
+
+/* ═══ BUDGET TABLE ═══ */
+.budget-section { padding: 0 0 80px; }
+
+.budget-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 32px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.budget-table th {
+  background: var(--cream-dark);
+  padding: 14px 20px;
+  text-align: left;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.budget-table td {
+  padding: 13px 20px;
+  font-size: 14px;
+  color: #2E2420;
+  border-bottom: 1px solid rgba(26,18,16,0.05);
+}
+.budget-table tr:last-child td { border-bottom: none; }
+.budget-table tr:hover td { background: var(--cream); }
+
+.budget-table td.item { color: var(--text-dark); font-weight: 600; }
+.budget-table td.price { font-family: 'DM Mono', monospace; color: var(--maroon); font-weight: 600; }
+.budget-table td.free { font-family: 'DM Mono', monospace; color: var(--green); font-weight: 600; }
+
+.budget-total td {
+  background: var(--maroon-pale);
+  border-top: 2px solid rgba(141,27,61,0.2);
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.budget-total td.price { font-size: 16px; color: var(--maroon); }
+
+/* ═══ TIMELINE ═══ */
+.timeline-section { padding: 0 0 80px; }
+
+.timeline {
+  position: relative;
+  margin-top: 40px;
+  padding-right: 24px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.tl-item {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+  align-items: flex-start;
+  position: relative;
+}
+
+.tl-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  order: -1;
+}
+
+.tl-week1 .tl-dot { background: var(--gold-pale); border: 2px solid rgba(154,110,26,0.3); }
+.tl-week2 .tl-dot { background: var(--teal-pale); border: 2px solid rgba(10,107,107,0.3); }
+.tl-week3 .tl-dot { background: var(--maroon-pale); border: 2px solid rgba(141,27,61,0.25); }
+.tl-week4 .tl-dot { background: var(--blue-pale); border: 2px solid rgba(26,74,128,0.2); }
+.tl-week5 .tl-dot { background: var(--green-pale); border: 2px solid rgba(26,122,60,0.25); }
+
+.tl-content {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.tl-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+.tl-days {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--cream-dark);
+  padding: 3px 8px;
+}
+
+.tl-desc { font-size: 14px; color: #3A2E2A; line-height: 1.7; }
+
+.tl-jalon {
+  margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--green);
+  background: var(--green-pale);
+  border-right: 3px solid var(--green);
+  direction: ltr;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+/* ═══ FULL DIVIDER ═══ */
+.full-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  background: var(--cream-dark);
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--maroon);
+}
+.footer-meta { font-size: 11px; color: var(--text-muted); text-align: right; }
+
+/* ═══ SCROLL REVEAL ═══ */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .page-wrapper { padding: 0 20px; }
+  .days-grid { grid-template-columns: 1fr; }
+  .hw-grid { grid-template-columns: 1fr; }
+  .pitch-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <span class="hero-flag">🇶🇦</span>
+    <div class="hero-eyebrow">Qatar Embodied AI Education Initiative · Mars 2026</div>
+    <h1 class="hero-title">
+      Plan d'implémentation
+      <span class="arabic">العيادة الذكية · أمل</span>
+    </h1>
+    <p class="hero-sub">4 semaines de développement · Semaine 5 pitchs</p>
+    <div class="hero-pills">
+      <span class="pill">S1 — Simulation complète</span>
+      <span class="pill">S2 — Robot + Agent médical</span>
+      <span class="pill">S3 — Robustesse + Rapport</span>
+      <span class="pill">S4 — Teaser + Pitch</span>
+      <span class="pill">S5 — QTS → QSTSS → MoEHE</span>
+    </div>
+    <div class="hero-stats">
+      <div class="h-stat"><span class="n">28</span><span class="l">Jours dev</span></div>
+      <div class="h-stat"><span class="n">8 min</span><span class="l">Démo live</span></div>
+      <div class="h-stat"><span class="n">3</span><span class="l">Fallbacks</span></div>
+      <div class="h-stat"><span class="n">$1,282</span><span class="l">Budget total</span></div>
+      <div class="h-stat"><span class="n">$0</span><span class="l">Logiciel</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- RÈGLES -->
+  <div class="rule-banner reveal">
+    <div class="rule-icon">⚖️</div>
+    <div>
+      <div class="rule-title">Règles absolues du plan</div>
+      <div class="rule-text">Aucun jalon suivant ne commence si le jalon précédent n'est pas validé. Le scénario est fixé — on ne le change plus. Chaque semaine se termine par un test de bout en bout. <strong>Commander le TonyPi Pro 16GB aujourd'hui</strong> — tout le reste se développe en attendant sa livraison (7–10 jours ouvrés depuis la Chine).</div>
+    </div>
+  </div>
+
+  <!-- SEMAINES -->
+  <div class="weeks-section">
+
+    <div class="sec-label">Développement</div>
+    <h2 class="sec-title">Les <span class="accent">4 semaines</span> de build</h2>
+
+    <!-- ═══ SEMAINE 1 ═══ -->
+    <div class="week-block week-1 reveal">
+      <div class="week-header">
+        <div class="week-num">S1<span class="sub">J1–J7</span></div>
+        <div class="week-info">
+          <div class="week-title">100% Simulation — Le cerveau sans le robot</div>
+          <div class="week-goal">Objectif : tout le cerveau est construit et testé sur PC + Gazebo. Quand le robot arrive, il n'y a plus qu'à brancher.</div>
+        </div>
+        <div class="week-tag">
+          <span class="tag-label">Matériel</span>
+          <span class="tag-val">PC + Gazebo</span>
+          <span class="tag-label" style="margin-top:6px;">Robot</span>
+          <span class="tag-val">En commande</span>
+        </div>
+      </div>
+
+      <div class="days-grid">
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J1–J2</span>
+            <div class="day-title">Environnement + Gazebo + URDF TonyPi</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Installer Ubuntu 24.04 LTS sur PC de développement</li>
+            <li>Installer ROS2 Humble via apt + Gazebo Harmonic</li>
+            <li>Télécharger URDF officiel TonyPi Pro depuis GitHub Hiwonder</li>
+            <li>Charger et valider l'URDF dans Gazebo — joints articulés stables</li>
+            <li>Implémenter les 5 gestes de base en simulation</li>
+            <li class="critical">Créer <code>robot_controller.py</code> avec paramètre <code>MODE=sim|real</code> dès J1</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J3–J4</span>
+            <div class="day-title">Stack voix — Azure STT + ElevenLabs TTS Gulf</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Créer compte Azure · provisionner Speech dans la région <code>qatarcentral</code></li>
+            <li>Implémenter STT Azure ar-QA streaming — tester 10 phrases dialecte qatari</li>
+            <li>Fallback Vosk arabe offline — tester en coupant le Wi-Fi</li>
+            <li class="critical">ElevenLabs TTS — configurer voix Gulf Arabic choisie · modèle <code>eleven_flash_v2_5</code> · 75ms latence</li>
+            <li>Implémenter le Tashkil automatique dans le system prompt Gemini — un seul appel LLM génère texte vocalisé + actions</li>
+            <li>Fallback Piper TTS ar_JO CPU offline — MSA · pour coupure réseau uniquement</li>
+            <li class="critical">أمل dit le discours d'ouverture complet avec la voix Gulf — tester les 27 répliques du scénario</li>
+          </ul>
+          <div class="ar-note">السَّلامُ عَلَيكُم — أَنَا أَمَلْ، مُسَاعِدَتُكُم الذَّكِيَّة فِي العِيَادَة</div>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J5–J6</span>
+            <div class="day-title">SQLite · ChromaDB · Telegram Bot</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Créer SQLite : nom_ar, prénom_ar, classe, allergies, médicaments, contacts</li>
+            <li>Insérer فاطمة (8B · aucune allergie) + سارة (7A · allergie lactose + médicament approuvé)</li>
+            <li>5 élèves supplémentaires + Mme نورة pour crédibilité</li>
+            <li>ChromaDB : protocoles médicaux · rhume banal · allergie lactose · règles de triage</li>
+            <li>Créer Telegram Bot pour Mme Noura via BotFather — 30 minutes</li>
+            <li class="critical">Tester les 2 notifications sur téléphone réel · vert Fatima · rouge urgente Sara</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J7</span>
+            <div class="day-title">Boucle unifiée simulation + Jalon S1</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Assembler la boucle complète : micro → Azure STT → SQLite → Gemini Flash (+ Tashkil) → ElevenLabs TTS Gulf → geste Gazebo</li>
+            <li>Tester avec les 2 profils : Fatima sans allergie → réponse calme · Sara avec allergie → signal d'alerte</li>
+            <li>Mesurer latence bout en bout — cible inférieure à 3 secondes</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="jalon-bar">
+        <div class="jalon-icon">✓</div>
+        <div class="jalon-content">
+          <div class="jalon-label">Jalon S1 validé si</div>
+          <div class="jalon-text">Boucle complète tourne en simulation · <strong>أمل parle en Gulf Khaliji via ElevenLabs Flash v2.5</strong> · Tashkil automatique Gemini validé · SQLite retourne Fatima et Sara correctement · 2 notifications Telegram arrivent sur téléphone · fallbacks voix testés · <strong>TonyPi Pro 16GB commandé et en transit</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SEMAINE 2 ═══ -->
+    <div class="week-block week-2 reveal">
+      <div class="week-header">
+        <div class="week-num">S2<span class="sub">J8–J14</span></div>
+        <div class="week-info">
+          <div class="week-title">Robot arrive + Agent médical complet</div>
+          <div class="week-goal">Objectif : les deux scénarios Fatima et Sara fonctionnent de bout en bout avec la différenciation correcte. Le robot physique est intégré dès son arrivée.</div>
+        </div>
+        <div class="week-tag">
+          <span class="tag-label">Matériel</span>
+          <span class="tag-val">Pi5 16GB</span>
+          <span class="tag-label" style="margin-top:6px;">Mode</span>
+          <span class="tag-val">sim → real</span>
+        </div>
+      </div>
+
+      <div class="days-grid">
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J8</span>
+            <div class="day-title">Migration Pi5 — ½ journée dès livraison</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Connecter Pi5 TonyPi en SSH depuis PC</li>
+            <li>Copier tout le code S1 vers Pi5</li>
+            <li>Installer dépendances Pi5 : Azure SDK · Gemini · SQLite · ChromaDB · Vosk · Piper · WonderPi SDK</li>
+            <li class="critical">Basculer <code>MODE=real</code> → أمل dit le discours d'ouverture depuis le robot physique</li>
+            <li>Valider les 5 gestes WonderPi SDK sur le robot réel</li>
+            <li>Si robot pas encore livré → continuer S2 en simulation · migration dès arrivée</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J8–J9</span>
+            <div class="day-title">State machine agent triage — 6 états</div>
+          </div>
+          <ul class="day-tasks">
+            <li>VEILLE → détection présence caméra → ACCUEIL</li>
+            <li>ACCUEIL → invitation + demande identification → IDENTIFICATION</li>
+            <li>IDENTIFICATION → lookup SQLite · signal HDMI vert ou jaune → ÉCOUTE</li>
+            <li>ÉCOUTE → recueil symptômes · croisement ChromaDB → ANALYSE</li>
+            <li>ANALYSE → décision cas banal ou urgence → ACTION</li>
+            <li>Gemini Flash function calling · timeouts 8s · réponses de secours locales</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J10–J11</span>
+            <div class="day-title">Logique différenciation + Affichage HDMI</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Règle Fatima : symptômes rhume + aucune allergie → cas banal → retour classe</li>
+            <li>Règle Sara : douleur abdominale + nausée + allergie lactose → vérification → urgence</li>
+            <li class="critical">Question <span dir="rtl">أكلتِ شي اليوم غير وجبة المدرسة؟</span> déclenchée UNIQUEMENT si allergie au dossier</li>
+            <li>HDMI vert Fatima · jaune dès identification Sara · rouge après confirmation lactose</li>
+            <li>Même entrée vocale → deux décisions opposées → deux dossiers différents</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J12–J14</span>
+            <div class="day-title">Scripts Khaliji complets + Telegram + Jalon S2</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Acte 1 complet : accueil → Fatima → orientation → <span dir="rtl">الله يعافيك</span> → notification verte</li>
+            <li>Acte 2 complet : accueil → Sara signal jaune → question ciblée → confirmation → urgence</li>
+            <li>Arrivée Noura → briefing 10s → confirmation diagnostic → médicament</li>
+            <li class="critical">موافقة نورة؟ → تفضلي → 3 coches HDMI → دائماً في الخدمة</li>
+            <li>Tester chaque dialogue 10 fois avec variations de prononciation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="jalon-bar">
+        <div class="jalon-icon">✓</div>
+        <div class="jalon-content">
+          <div class="jalon-label">Jalon S2 validé si</div>
+          <div class="jalon-text">Les 2 scénarios complets se jouent sans intervention manuelle · Fatima repart en 60s · Sara déclenche l'urgence avec HDMI rouge · briefing Noura correct · notifications Telegram sur téléphone · <strong>موافقة نورة؟</strong> et <strong>دائماً في الخدمة</strong> prononcés en Gulf Khaliji via ElevenLabs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SEMAINE 3 ═══ -->
+    <div class="week-block week-3 reveal">
+      <div class="week-header">
+        <div class="week-num">S3<span class="sub">J15–J21</span></div>
+        <div class="week-info">
+          <div class="week-title">Agent PC + Robustesse + Rapport + Supports cours</div>
+          <div class="week-goal">Objectif : Le rapport se génère mot par mot visible sur l'écran projeté. La démo ne plante jamais. Le premier module de cours est prêt.</div>
+        </div>
+        <div class="week-tag">
+          <span class="tag-label">Focus</span>
+          <span class="tag-val">Waw #3</span>
+          <span class="tag-label" style="margin-top:6px;">Cible</span>
+          <span class="tag-val">10 runs/bug</span>
+        </div>
+      </div>
+
+      <div class="days-grid">
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J15–J16</span>
+            <div class="day-title">Agent PC PyAutoGUI — Le Waw #3</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Installer PyAutoGUI + GPT-4o Vision sur PC de démo</li>
+            <li>Séquence déclenchée par <span dir="rtl">تفضلي</span> : coche 1 Administration · coche 2 Parents Sara + message Telegram</li>
+            <li class="critical">Ouverture Google Docs → rapport généré <strong>mot par mot</strong> visible sur écran projeté</li>
+            <li>Rapport : nom · classe · date/heure auto · symptômes · cause · antécédents · actions · état · signature أمل</li>
+            <li>Coche 3 après dernier mot : الملف الطبي · تم الحفظ التلقائي</li>
+            <li>Durée totale séquence cible : moins de 20 secondes</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J17</span>
+            <div class="day-title">Intégration scénario complet bout en bout</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Enchaîner Acte 0 + Acte 1 + Acte 2 + Agent PC sans interruption</li>
+            <li>Mesurer durée totale — cible 8 minutes maximum</li>
+            <li>Tester avec 2 personnes jouant Fatima et Sara en conditions réelles</li>
+            <li>Valider HDMI correct à chaque instant précis du scénario</li>
+            <li class="critical">Cible : run complet sous 8 minutes · aucune intervention manuelle</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J18–J19</span>
+            <div class="day-title">Robustesse — 3 fallbacks critiques</div>
+          </div>
+          <ul class="day-tasks">
+            <li><strong>Fallback 1 — STT bruit :</strong> si confidence &lt; 0.6 → mode saisie texte + <span dir="rtl">قولي اسمك مرة ثانية</span></li>
+            <li><strong>Fallback 2 — LLM timeout :</strong> si pas de réponse sous 8s → réponse pré-scriptée locale selon état courant</li>
+            <li><strong>Fallback 3 — Servo non répond :</strong> si pas de réponse sous 2s → mode voix seule · démo continue</li>
+            <li>Tester Fallback 1 : bruit clim · voix multiples · micro à 50cm</li>
+            <li>Tester Fallback 2 : couper internet en pleine démo</li>
+            <li>Tester Fallback 3 : débrancher câble servo</li>
+            <li class="critical">Chaque fallback doit être invisible pour l'audience · 5 tests chacun</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J20–J21</span>
+            <div class="day-title">Supports cours + Slide souveraineté</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Fiche élève S1 Phase 1 : <span dir="rtl">وكيلي الأول — بناء أول عميل ذكاء اصطناعي صوتي</span></li>
+            <li>Durée 2h · niveau 15 ans · from scratch · hello world vocal → tool simple</li>
+            <li>Guide enseignant : objectifs Vision 2030 · déroulé heure par heure · 5 erreurs fréquentes · grille évaluation</li>
+            <li class="critical">Slide souveraineté : Azure Qatar Central STT · données vocales élèves à Doha · ElevenLabs TTS Gulf Arabic · argument offensif MoEHE</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="jalon-bar">
+        <div class="jalon-icon">✓</div>
+        <div class="jalon-content">
+          <div class="jalon-label">Jalon S3 validé si</div>
+          <div class="jalon-text">Démo complète tourne <strong>10 fois de suite sans bug</strong> · 3 fallbacks testés fonctionnels · rapport mot par mot en moins de 20s · fiche élève + guide enseignant finalisés · slide souveraineté prête</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SEMAINE 4 ═══ -->
+    <div class="week-block week-4 reveal">
+      <div class="week-header">
+        <div class="week-num">S4<span class="sub">J22–J28</span></div>
+        <div class="week-info">
+          <div class="week-title">Teaser vidéo + Polish + Pitch deck</div>
+          <div class="week-goal">Objectif : tout est prêt pour la semaine 5. Zéro surprise possible. Teaser filmé et monté. Pitch deck finalisé. Répétitions complètes.</div>
+        </div>
+        <div class="week-tag">
+          <span class="tag-label">Livrable</span>
+          <span class="tag-val">Pitch ready</span>
+          <span class="tag-label" style="margin-top:6px;">Backup</span>
+          <span class="tag-val">Vidéo 5 min</span>
+        </div>
+      </div>
+
+      <div class="days-grid">
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J22–J23</span>
+            <div class="day-title">Script précis + Tournage teaser 2-3 min</div>
+          </div>
+          <ul class="day-tasks">
+            <li><strong>0:00–0:30 ·</strong> Simulation : élève + VS Code + Gazebo · TonyPi URDF bouge · <code>MODE=real</code> tapé</li>
+            <li><strong>0:30–1:00 ·</strong> Même code robot physique · même geste · même voix · l'élève sourit</li>
+            <li><strong>1:00–2:00 ·</strong> Séquence Sara complète : signal jaune · question ciblée · moافقة نورة؟ · rapport mot par mot · شكراً أمل · دائماً في الخدمة</li>
+            <li><strong>2:00–2:30 ·</strong> Plateforme IA conversationnelle : élève question arabe · IA répond code commenté</li>
+            <li>Filmer 3 versions séquence Sara · éclairage correct · micro qualité · fond neutre</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J24–J25</span>
+            <div class="day-title">Mock plateforme + Montage DaVinci Resolve</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Créer interface HTML mock plateforme IA conversationnelle — filmée uniquement · pas de backend</li>
+            <li>Monter teaser sur DaVinci Resolve Community : coupes nettes · sous-titres arabes + français</li>
+            <li>Musique neutre non-conflictuelle · export 1080p pour projection en salle</li>
+            <li>Version 30 secondes pour réseaux sociaux si besoin</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J26–J27</span>
+            <div class="day-title">Pitch deck 9 slides finalisé</div>
+          </div>
+          <ul class="day-tasks">
+            <li>Slide 1 · Le problème : 26 000 emplois Vision 2030 · gap actuel</li>
+            <li>Slide 2 · La solution : seul parcours K12 au monde · Embodied + Agentic + Arabe</li>
+            <li>Slide 3 · Ce que vous venez de voir : compétences niveau master · accessibles au lycée</li>
+            <li>Slide 4 · La plateforme : comment l'élève y arrive · sim→réel · arabe</li>
+            <li>Slide 5 · Vision 2030 · MEHE 2024-30 · Digital Agenda · chiffres précis</li>
+            <li>Slide 6 · Souveraineté : Azure qatarcentral · données STT à Doha · ElevenLabs TTS Gulf Arabic · conçu pour le Qatar</li>
+            <li>Slide 7 · Roadmap 3 ans · QEAIC / AEAIO / WEAWC</li>
+            <li>Slide 8 · Écoles pilotes : QTS + QSTSS + 1 publique · budget et ROI</li>
+            <li>Slide 9 · Prochaine étape : MOU · calendrier · contacts</li>
+          </ul>
+        </div>
+
+        <div class="day-block">
+          <div class="day-header">
+            <span class="day-pill">J28</span>
+            <div class="day-title">Répétitions + Vidéo backup + Checklist finale</div>
+          </div>
+          <ul class="day-tasks">
+            <li>3 runs complets chronomètre en main devant audience simulée</li>
+            <li>Réponses prêtes aux 10 questions difficiles : souveraineté · coût · remplacement infirmière · différenciation · élèves 15 ans</li>
+            <li class="critical">Vidéo backup 5 min : Sara complète · qualité broadcast · sous-titres · sur clé USB + cloud</li>
+            <li>Checklist : Pi5 chargé · Wi-Fi VLAN isolé · Azure testé sur site · Telegram actif · Google Docs · HDMI · micro orienté</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="jalon-bar">
+        <div class="jalon-icon">✓</div>
+        <div class="jalon-content">
+          <div class="jalon-label">Jalon S4 validé si</div>
+          <div class="jalon-text"><strong>3 runs sous 8 minutes sans intervention</strong> · pitch deck projeté et vérifié · vidéo backup exportée et lisible · checklist technique signée · réponses aux 10 questions fluides</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SEMAINE 5 ═══ -->
+    <div class="week-block week-5 reveal">
+      <div class="week-header">
+        <div class="week-num">S5<span class="sub">Pitchs</span></div>
+        <div class="week-info">
+          <div class="week-title">Présentations — QTS · QSTSS · MoEHE · Écoles British</div>
+          <div class="week-goal">Structure de chaque présentation : démo live 8 min → teaser plateforme 2-3 min → pitch 9 slides 5 min → Q&A 10-15 min · Total 25–30 minutes.</div>
+        </div>
+        <div class="week-tag">
+          <span class="tag-label">Durée pitch</span>
+          <span class="tag-val">25–30 min</span>
+          <span class="tag-label" style="margin-top:6px;">Démo live</span>
+          <span class="tag-val">8 min</span>
+        </div>
+      </div>
+
+      <div class="pitch-grid">
+        <div class="pitch-card">
+          <div class="pitch-order">01</div>
+          <div class="pitch-school">🏫 QTS — Qatar Turkish International School</div>
+          <div class="pitch-why">Premier parce que l'autonomie pédagogique est plus grande. Le directeur peut décider sans validation ministérielle. Si QTS dit oui <em>avant</em> la réunion ministre, c'est un argument supplémentaire concret en main.</div>
+        </div>
+        <div class="pitch-card">
+          <div class="pitch-order">02</div>
+          <div class="pitch-school">🏫 QSTSS — Qatar Science & Technology Secondary</div>
+          <div class="pitch-why">École STEM publique qatarienne — argument souveraineté très fort ici. Dr. Mohammed Salameh à contacter en amont. Retour positif QSTSS + QTS avant le ministre = réunion MoEHE qui change de nature.</div>
+        </div>
+        <div class="pitch-card">
+          <div class="pitch-order">03</div>
+          <div class="pitch-school">🏛️ Ministre MoEHE</div>
+          <div class="pitch-why">En troisième — armé des retours positifs de QTS et QSTSS. Ce n'est plus une demande de permission, c'est un rapport d'avancement sur deux établissements déjà convaincus. Position de force totale.</div>
+        </div>
+        <div class="pitch-card">
+          <div class="pitch-order">04</div>
+          <div class="pitch-school">🏫 Écoles British — En parallèle</div>
+          <div class="pitch-why">Dès que QTS est convaincu, les autres établissements British suivent naturellement par réseau de directeurs. L'approbation QTS est le signal de crédibilité pour tout le réseau.</div>
+        </div>
+      </div>
+
+      <div class="jalon-bar">
+        <div class="jalon-icon">🎯</div>
+        <div class="jalon-content">
+          <div class="jalon-label">Objectif semaine 5</div>
+          <div class="jalon-text">Au minimum <strong>1 MOU signé</strong> (QTS ou QSTSS) · agenda de déploiement pilote septembre 2026 validé · contact MoEHE établi pour validation nationale</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TIMELINE SYNTHÈSE -->
+  <div class="timeline-section">
+    <div class="sec-label">Vue d'ensemble</div>
+    <h2 class="sec-title">Timeline <span class="accent">synthèse</span></h2>
+
+    <div class="timeline">
+      <div class="tl-item tl-week1 reveal">
+        <div class="tl-dot">🖥️</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <div class="tl-title">S1 — Simulation complète + Stack voix souveraine</div>
+            <div class="tl-days">J1–J7</div>
+          </div>
+          <div class="tl-desc">PC + Gazebo + URDF · Azure qatarcentral STT · ElevenLabs TTS Gulf · SQLite · ChromaDB · Telegram Bot · boucle unifiée MODE=sim</div>
+          <div class="tl-jalon">✓ أمل parle en Gulf Khaliji · Tashkil Gemini validé · robot commandé</div>
+        </div>
+      </div>
+
+      <div class="tl-item tl-week2 reveal">
+        <div class="tl-dot">🤖</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <div class="tl-title">S2 — Robot physique + Agent triage complet</div>
+            <div class="tl-days">J8–J14</div>
+          </div>
+          <div class="tl-desc">Migration Pi5 demi-journée · state machine 6 états · différenciation Fatima/Sara · HDMI vert/jaune/rouge · dialogues Khaliji 10 fois chacun</div>
+          <div class="tl-jalon">✓ 2 scénarios complets sans intervention · موافقة نورة؟ · دائماً في الخدمة</div>
+        </div>
+      </div>
+
+      <div class="tl-item tl-week3 reveal">
+        <div class="tl-dot">📄</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <div class="tl-title">S3 — Rapport mot par mot + Robustesse + Cours</div>
+            <div class="tl-days">J15–J21</div>
+          </div>
+          <div class="tl-desc">Agent PC PyAutoGUI · rapport généré mot par mot visible · 3 fallbacks critiques testés · fiche élève Phase 1 · guide enseignant · slide souveraineté</div>
+          <div class="tl-jalon">✓ 10 runs sans bug · rapport &lt;20s · supports cours prêts</div>
+        </div>
+      </div>
+
+      <div class="tl-item tl-week4 reveal">
+        <div class="tl-dot">🎬</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <div class="tl-title">S4 — Teaser 2-3 min + Pitch 9 slides + Répétitions</div>
+            <div class="tl-days">J22–J28</div>
+          </div>
+          <div class="tl-desc">Script timecodes · tournage 3 versions · montage DaVinci Resolve · mock plateforme · 3 runs chrono · 10 réponses Q&A · vidéo backup 5 min · checklist signée</div>
+          <div class="tl-jalon">✓ 3 runs &lt;8 min · pitch projeté · vidéo backup sur USB</div>
+        </div>
+      </div>
+
+      <div class="tl-item tl-week5 reveal">
+        <div class="tl-dot">🏛️</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <div class="tl-title">S5 — QTS → QSTSS → MoEHE → British schools</div>
+            <div class="tl-days">Pitchs</div>
+          </div>
+          <div class="tl-desc">Démo live 8 min + teaser 3 min + pitch 5 min + Q&A 15 min par présentation · 25-30 minutes totales</div>
+          <div class="tl-jalon">✓ ≥1 MOU signé · pilote septembre 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="full-divider"></div>
+
+<!-- HARDWARE SECTION -->
+<div class="page-wrapper">
+<div class="hardware-section">
+  <div class="sec-label">Hardware</div>
+  <h2 class="sec-title">Ce qu'il faut <span class="accent">commander aujourd'hui</span></h2>
+
+  <div class="hw-grid" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="hw-card featured reveal">
+      <div class="hw-badge recommended">⭐ Recommandé pour tout le cursus</div>
+      <div class="hw-name">Hiwonder TonyPi Pro<br>Raspberry Pi 5 16GB Kit</div>
+      <div class="hw-price"><span class="currency">$</span>1,069<span style="font-size:20px">.99</span> <span class="note">· Prix vérifié hiwonder.com · In stock</span></div>
+      <ul class="hw-specs">
+        <li><span class="spec-label">CPU</span><span class="spec-val">Raspberry Pi 5 16GB LPDDR4X</span></li>
+        <li><span class="spec-label">DOF</span><span class="spec-val">20 servos haute tension + mains articulées</span></li>
+        <li><span class="spec-label">Caméra</span><span class="spec-val">HD wide-angle 2DOF</span></li>
+        <li><span class="spec-label">Contrôle</span><span class="spec-val">WonderPi SDK Python + App iOS/Android</span></li>
+        <li><span class="spec-label">OS</span><span class="spec-val">Image Ubuntu Hiwonder pré-configurée</span></li>
+        <li><span class="spec-label">Code</span><span class="spec-val">Open-source · Python · tutoriels inclus</span></li>
+        <li><span class="spec-label">Livraison</span><span class="spec-val">DHL/FedEx · ~7-10 jours ouvrés vers Qatar</span></li>
+        <li><span class="spec-label">Pourquoi 16GB</span><span class="spec-val">Couvre tout K12→Uni A3 · Ollama Qwen2.5:7b · vLLM · Isaac Sim</span></li>
+      </ul>
+      <a href="https://www.hiwonder.com/products/tonypi-pro" target="_blank" class="hw-link">→ Commander sur hiwonder.com</a>
+      <a href="https://www.robotshop.com/products/hiwonder-hiwonder-tonypi-pro-ai-humanoid-robot-with-raspberry-pi-5-integrated-multimodal-ai-model-chatgpt-ai-vision-tracking-voice-interaction-and-hand-eye-coordination-raspberry-pi-5-16gb-kit" target="_blank" class="hw-link secondary">RobotShop (backup)</a>
+    </div>
+
+    <div class="hw-card reveal">
+      <div class="hw-badge qatar">📍 Disponible à Doha</div>
+      <div class="hw-name">Écran HDMI 24 pouces<br>IPS FHD — Démo live</div>
+      <div class="hw-price"><span class="currency">~</span>100 <span class="note">USD · ~350–400 QAR</span></div>
+      <ul class="hw-specs">
+        <li><span class="spec-label">Taille</span><span class="spec-val">23.8–24 pouces FHD 1920×1080</span></li>
+        <li><span class="spec-label">Panel</span><span class="spec-val">IPS · angles de vision 178° (audience de côté)</span></li>
+        <li><span class="spec-label">Ports</span><span class="spec-val">HDMI standard (pas micro-HDMI) + DisplayPort</span></li>
+        <li><span class="spec-label">Audio</span><span class="spec-val">Haut-parleurs intégrés si possible</span></li>
+        <li><span class="spec-label">Recommandé 1</span><span class="spec-val">BenQ GW2490 · Dual HDMI · speakers · Eye Care</span></li>
+        <li><span class="spec-label">Recommandé 2</span><span class="spec-val">Dell P2425H · professionnel · 100Hz · Flicker-free</span></li>
+        <li><span class="spec-label">Livraison</span><span class="spec-val">Same-day ou next-day dans Doha</span></li>
+      </ul>
+      <a href="https://alaneesqatar.qa/product-category/computer-monitor/" target="_blank" class="hw-link">→ AlaneesQatar.qa — Doha</a>
+      <a href="https://jumbosouq.com" target="_blank" class="hw-link secondary">JumboSouq (same-day)</a>
+    </div>
+
+    <div class="hw-card reveal" style="border-top: 3px solid var(--teal);">
+      <div class="hw-badge" style="background: var(--teal-pale); color: var(--teal); border: 1px solid rgba(10,107,107,0.2);">🎙️ Indispensable pour la démo</div>
+      <div class="hw-name">Micro directionnel USB<br>RØDE NT-USB Mini</div>
+      <div class="hw-price"><span class="currency">~</span>100 <span class="note">USD · priorité démo officielle</span></div>
+      <ul class="hw-specs">
+        <li><span class="spec-label">Type</span><span class="spec-val">Cardioïde directionnel — capte la voix, rejette le bruit salle</span></li>
+        <li><span class="spec-label">Connexion</span><span class="spec-val">USB-A · plug & play Ubuntu 24.04 · aucun driver</span></li>
+        <li><span class="spec-label">Port Pi5</span><span class="spec-val">USB 2.0 · détecté via <code>arecord -l</code></span></li>
+        <li><span class="spec-label">Placement démo</span><span class="spec-val">30–40 cm face à la chaise · orienté vers l'élève · pas l'audience</span></li>
+        <li><span class="spec-label">Pourquoi directionnel</span><span class="spec-val">Évite le déclenchement du Fallback 1 (confidence STT &lt; 0.6) en conditions réelles</span></li>
+        <li><span class="spec-label">Alternative budget</span><span class="spec-val">Blue Snowball iCE USB · ~$50 · qualité correcte pour démo</span></li>
+        <li><span class="spec-label">⚠️ À éviter</span><span class="spec-val">Micros omnidirectionnels bon marché — capte tout, détruit la fiabilité STT</span></li>
+      </ul>
+      <a href="https://www.rode.com/microphones/usb/nt-usb-mini" target="_blank" class="hw-link" style="background: var(--teal);">→ RØDE NT-USB Mini officiel</a>
+      <a href="https://www.amazon.com/s?k=Blue+Snowball+iCE+USB" target="_blank" class="hw-link secondary" style="color: var(--teal); border-color: var(--teal);">Blue Snowball (budget)</a>
+    </div>
+
+    <div class="hw-card reveal" style="border-top: 3px solid var(--blue);">
+      <div class="hw-badge" style="background: var(--blue-pale); color: var(--blue); border: 1px solid rgba(26,74,128,0.2);">🔊 Nécessaire — Pi5 sans jack audio</div>
+      <div class="hw-name">Carte son USB<br>Sortie audio TTS local</div>
+      <div class="hw-price"><span class="currency">~</span>12 <span class="note">USD · petit budget, grand impact</span></div>
+      <ul class="hw-specs">
+        <li><span class="spec-label">Pourquoi</span><span class="spec-val">Le Pi5 n'a <strong>pas de jack 3.5mm</strong> — contrairement au Pi4</span></li>
+        <li><span class="spec-label">Usage</span><span class="spec-val">Sortie audio pour Piper TTS (fallback offline) + enceinte portable</span></li>
+        <li><span class="spec-label">Connexion</span><span class="spec-val">USB 2.0 · port Pi5 dédié · plug & play Ubuntu</span></li>
+        <li><span class="spec-label">Recommandé</span><span class="spec-val">UGREEN USB Audio Adapter · reconnu nativement · aucune config</span></li>
+        <li><span class="spec-label">Complément</span><span class="spec-val">Petite enceinte portable jack 3.5mm branchée dessus pour la voix du robot</span></li>
+        <li><span class="spec-label">Config Pi5</span><span class="spec-val">2× USB 3.0 libres après ajout carte son + micro sur USB 2.0</span></li>
+      </ul>
+      <a href="https://www.amazon.com/s?k=UGREEN+USB+audio+adapter" target="_blank" class="hw-link" style="background: var(--blue);">→ UGREEN USB Audio Adapter</a>
+    </div>
+
+  </div>
+
+  <!-- NOTE AUDIO -->
+  <div style="background: #fff; border: 1px solid var(--border); border-right: 4px solid var(--teal); padding: 20px 28px; margin-top: 16px; box-shadow: var(--shadow-sm);" class="reveal">
+    <div style="font-size: 12px; font-family: 'DM Mono', monospace; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px;">Note setup audio Pi5</div>
+    <div style="font-size: 13px; color: var(--text-mid); line-height: 1.8;">
+      Le Pi5 dispose de <strong>4 ports USB</strong> (2× USB 3.0 + 2× USB 2.0). Configuration recommandée pour la démo :
+      <span style="display: block; margin-top: 8px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dark); background: var(--cream-dark); padding: 10px 14px; border-radius: 2px;">
+        USB 2.0 port 1 → Carte son USB (sortie TTS Piper)<br>
+        USB 2.0 port 2 → Micro RØDE NT-USB Mini (entrée STT)<br>
+        USB 3.0 port 1 → Clé USB backup / hub<br>
+        USB 3.0 port 2 → Libre
+      </span>
+      <span style="display: block; margin-top: 8px;">Dans le code Python : spécifier le device micro avec <code style="background: var(--cream-dark); padding: 1px 5px;">AZURE_STT_MIC_DEVICE_ID</code> récupéré via <code style="background: var(--cream-dark); padding: 1px 5px;">arecord -l</code></span>
+    </div>
+  </div>
+
+</div>
+
+<!-- BUDGET -->
+<div class="budget-section">
+  <div class="sec-label">Finances</div>
+  <h2 class="sec-title">Budget <span class="accent">MVP complet</span></h2>
+  <p style="font-size: 14px; color: rgba(26,18,16,0.62); margin-bottom: 8px; line-height: 1.7;">Azure Qatar Central pour le STT (données vocales élèves à Doha) · ElevenLabs Flash v2.5 pour le TTS Gulf Khaliji · Piper TTS en fallback offline uniquement.</p>
+
+  <table class="budget-table reveal">
+    <thead>
+      <tr>
+        <th>Article</th>
+        <th>Configuration</th>
+        <th>Prix</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="item">🤖 TonyPi Pro</td>
+        <td>Raspberry Pi 5 <strong>16GB</strong> Kit · In stock</td>
+        <td class="price">$1,069.99</td>
+        <td>hiwonder.com</td>
+      </tr>
+      <tr>
+        <td class="item">🖥️ Écran HDMI 24"</td>
+        <td>BenQ GW2490 IPS FHD · Doha</td>
+        <td class="price">~$100</td>
+        <td>alaneesqatar.qa</td>
+      </tr>
+      <tr>
+        <td class="item">🎙️ Micro RØDE NT-USB Mini</td>
+        <td>Directionnel cardioïde · USB · plug & play Ubuntu · STT fiable en démo</td>
+        <td class="price">~$100</td>
+        <td>rode.com / Amazon</td>
+      </tr>
+      <tr>
+        <td class="item">🔊 Carte son USB</td>
+        <td>UGREEN USB Audio Adapter · sortie jack 3.5mm · lecture audio ElevenLabs + fallback Piper offline</td>
+        <td class="price">~$12</td>
+        <td>Amazon</td>
+      </tr>
+      <tr>
+        <td class="item">☁️ Azure Qatar Central</td>
+        <td>STT ar-QA uniquement · données vocales élèves à Doha · souveraineté garantie</td>
+        <td class="price">~$8/mois</td>
+        <td>azure.microsoft.com</td>
+      </tr>
+      <tr>
+        <td class="item">🔊 ElevenLabs TTS</td>
+        <td>Plan <strong>Starter $5/mois</strong> · 30k crédits · Flash v2.5 Gulf Arabic · 75ms latence · voix Gulf Khaliji</td>
+        <td class="price">$5/mois</td>
+        <td>elevenlabs.io</td>
+      </tr>
+      <tr>
+        <td class="item">🧠 Gemini Flash</td>
+        <td>Function calling · raisonnement médical · Tashkil automatique Gulf · /mois</td>
+        <td class="price">~$10/mois</td>
+        <td>ai.google.dev</td>
+      </tr>
+      <tr>
+        <td class="item">📱 Telegram Bot</td>
+        <td>Notifications Noura</td>
+        <td class="free">GRATUIT</td>
+        <td>t.me/BotFather</td>
+      </tr>
+      <tr>
+        <td class="item">🗄️ ROS2 Humble</td>
+        <td>Ubuntu 24.04 LTS</td>
+        <td class="free">GRATUIT</td>
+        <td>docs.ros.org</td>
+      </tr>
+      <tr>
+        <td class="item">🎬 DaVinci Resolve</td>
+        <td>Community Edition · montage teaser</td>
+        <td class="free">GRATUIT</td>
+        <td>blackmagicdesign.com</td>
+      </tr>
+      <tr>
+        <td class="item">🔊 Vosk + Piper TTS</td>
+        <td>Fallbacks offline arabe CPU · coupure réseau uniquement</td>
+        <td class="free">GRATUIT</td>
+        <td>alphacephei.com</td>
+      </tr>
+      <tr>
+        <td class="item">🗃️ SQLite + ChromaDB</td>
+        <td>Dossiers élèves + protocoles RAG</td>
+        <td class="free">GRATUIT</td>
+        <td>Open source</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="budget-total">
+        <td colspan="2"><strong>Total hardware one-shot</strong></td>
+        <td class="price">~$1,282</td>
+        <td></td>
+      </tr>
+      <tr class="budget-total">
+        <td colspan="2"><strong>Total cloud mensuel MVP</strong></td>
+        <td class="price">~$23/mois</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- ELEVENLABS SCALING -->
+  <div style="margin-top: 32px; background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--teal); box-shadow: var(--shadow-sm); padding: 28px 32px;" class="reveal">
+    <div style="font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--teal); margin-bottom: 16px;">ElevenLabs TTS — Évolution des plans · À titre indicatif</div>
+
+    <table class="budget-table" style="margin-top: 0;">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Contexte</th>
+          <th>Crédits/mois estimés</th>
+          <th>Plan recommandé</th>
+          <th>Coût/mois</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="item">🧪 MVP démo</td>
+          <td>Développement · tests · répétitions · 4–5 pitchs · toi seul</td>
+          <td style="font-family: 'DM Mono', monospace; font-size: 13px;">~60 000</td>
+          <td><strong>Starter</strong> · 30k crédits · Flash ×0.5 = 60k effectifs</td>
+          <td class="price">$5/mois</td>
+        </tr>
+        <tr>
+          <td class="item">🏫 Pilote 1 école</td>
+          <td>~30 élèves · 10 sessions/mois · plateforme live</td>
+          <td style="font-family: 'DM Mono', monospace; font-size: 13px;">~400 000</td>
+          <td><strong>Pro</strong> · 500k crédits · API PCM 44.1kHz · marge 20%</td>
+          <td class="price">$99/mois</td>
+        </tr>
+        <tr>
+          <td class="item">🎓 Projets élèves</td>
+          <td>~20 projets · 40 élèves · 15 sessions/mois chacun</td>
+          <td style="font-family: 'DM Mono', monospace; font-size: 13px;">~1 100 000</td>
+          <td><strong>Scale</strong> · 2M crédits · coût/caractère le plus bas</td>
+          <td class="price">$330/mois</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+      <div style="background: var(--green-pale); border: 1px solid rgba(26,122,60,0.2); padding: 14px 16px; font-size: 13px;">
+        <div style="font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); letter-spacing: 2px; margin-bottom: 6px;">MODÈLE UTILISÉ</div>
+        <div style="color: #2E2420; font-weight: 600;">Flash v2.5</div>
+        <div style="color: rgba(26,18,16,0.55); font-size: 12px; margin-top: 3px;">75ms latence · 0.5 crédit/caractère · Gulf Arabic · streaming</div>
+      </div>
+      <div style="background: var(--gold-pale); border: 1px solid rgba(154,110,26,0.2); padding: 14px 16px; font-size: 13px;">
+        <div style="font-family: 'DM Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 2px; margin-bottom: 6px;">TASHKIL GULF</div>
+        <div style="color: #2E2420; font-weight: 600;">Gemini Flash</div>
+        <div style="color: rgba(26,18,16,0.55); font-size: 12px; margin-top: 3px;">Vocalisation dialecte Gulf dans le system prompt · 0 latence ajoutée</div>
+      </div>
+      <div style="background: var(--teal-pale); border: 1px solid rgba(10,107,107,0.2); padding: 14px 16px; font-size: 13px;">
+        <div style="font-family: 'DM Mono', monospace; font-size: 10px; color: var(--teal); letter-spacing: 2px; margin-bottom: 6px;">FALLBACK OFFLINE</div>
+        <div style="color: #2E2420; font-weight: 600;">Piper TTS ar_JO</div>
+        <div style="color: rgba(26,18,16,0.55); font-size: 12px; margin-top: 3px;">CPU pur Pi5 · 50ms · MSA · si coupure réseau uniquement</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px; font-size: 12.5px; color: rgba(26,18,16,0.55); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 12px;">
+      ℹ️ <strong style="color: #2E2420;">Note :</strong> Le plan Starter actuel ($5/mois) est suffisant pour toute la durée du MVP. La montée en plan Pro ($99/mois) n'est déclenchée qu'au moment du déploiement réel en école pilote. Le plan Scale ($330/mois) est une estimation post-production pour information — les chiffres réels dépendront du nombre d'élèves et de la fréquence d'utilisation effective.
+      <br>Le <strong style="color: #2E2420;">rollover de crédits jusqu'à 2 mois</strong> est disponible sur tous les plans payants — les crédits non consommés en phase MVP sont conservés.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">🇶🇦 العيادة الذكية · أمل</div>
+    <div style="font-size:12px; color:rgba(26,18,16,0.38); margin-top:5px;">Qatar Embodied AI Education Initiative · Mars 2026</div>
+  </div>
+  <div class="footer-meta">
+    <div>Plan d'implémentation v1.0 · Confidentiel</div>
+    <div style="margin-top:3px;">Azure qatarcentral STT · ElevenLabs Flash v2.5 Gulf TTS · TonyPi Pro Pi5 16GB · ROS2 Humble</div>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
