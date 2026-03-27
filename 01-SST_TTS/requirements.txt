@@ -1,0 +1,4 @@
+azure-cognitiveservices-speech==1.43.0
+python-dotenv==1.0.1
+arabic-reshaper==3.0.0
+python-bidi==0.4.2
