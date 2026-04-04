@@ -1,0 +1,40 @@
+**Étape suivante — récupère le TOKEN**
+
+BotFather t'a envoyé un message qui ressemble à :
+
+```
+Done! Congratulations on your new bot.
+...
+Use this token to access the HTTP API:
+7482910346:AAHxK2mZ9fQwLpNvR3cJdT8eYsGiUbO1Wqk
+```
+
+Copie ce TOKEN et mets-le dans ton `.env` :
+```env
+TELEGRAM_BOT_TOKEN=<colle ici>
+```
+
+---
+
+**Ensuite — récupérer les CHAT_ID**
+
+Pour chaque destinataire (infirmière, direction, parents) :
+
+**1.** La personne ouvre Telegram → cherche `@amal_3yada_bot` → envoie n'importe quel message (ex: "test")
+
+**2.** Toi tu ouvres cette URL dans un navigateur :
+```
+https://api.telegram.org/bot<TON_TOKEN>/getUpdates
+```
+
+**3.** Tu verras un JSON avec :
+```json
+"chat": {
+    "id": 123456789,   ← c'est le CHAT_ID
+    "first_name": "نورة"
+}
+```
+
+---
+
+Dis-moi quand tu as le TOKEN et les CHAT_ID — on passe à `telegram_notif.py`.

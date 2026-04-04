@@ -1,0 +1,1 @@
+source ~/AI/.venv/bin/activate && cd ~/AI/03-DB_TELEGRAM && export $(grep -v '^#' .env | xargs)

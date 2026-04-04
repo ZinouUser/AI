@@ -40,6 +40,8 @@ def init_db():
         allergies_en      TEXT,
         chronic           TEXT,
         chronic_en        TEXT,
+        medication        TEXT,
+        medication_en     TEXT,
         emergency_contact TEXT,
         urgency_level     TEXT DEFAULT 'routine',
         notes             TEXT,
@@ -59,6 +61,13 @@ def init_db():
         FOREIGN KEY (patient_id) REFERENCES patients(id)
     )""")
 
+    # Migration : add medication columns if they don't exist yet
+    for col in ("medication", "medication_en"):
+        try:
+            c.execute(f"ALTER TABLE patients ADD COLUMN {col} TEXT DEFAULT ''")
+        except sqlite3.OperationalError:
+            pass   # column already exists
+
     c.execute("SELECT COUNT(*) FROM patients")
     if c.fetchone()[0] == 0:
         _seed(c)
@@ -77,6 +86,7 @@ def _seed(c):
             14, 9, "9أ", "9A", "التاسع ألف", "Grade 9 — Section A",
             "لا يوجد", "none",
             "رشح خفيف", "mild cold",
+            "", "",
             "+974-5551-0001", "routine",
             "طالبة هادئة", "Calm student",
             None,
@@ -88,9 +98,9 @@ def _seed(c):
             15, 10, "10ب", "10B", "العاشر باء", "Grade 10 — Section B",
             "لاكتوز", "lactose",
             "لا يوجد", "none",
+            "إِنْتُولِيرَانْ — 5 قَطَرَاتْ", "Intoleran — 5 drops",
             "+974-5551-0002", "monitor",
-            "حساسية اللاكتوز — تجنب منتجات الألبان",
-            "Lactose intolerance — avoid dairy",
+            "حساسية اللاكتوز", "Lactose intolerance",
             None,
         ),
         (
@@ -100,8 +110,9 @@ def _seed(c):
             13, 8, "8ج", "8C", "الثامن جيم", "Grade 8 — Section C",
             "لا يوجد", "none",
             "ربو خفيف", "mild asthma",
+            "بخاخ الربو في الحقيبة", "Asthma inhaler in schoolbag",
             "+974-5551-0003", "urgent",
-            "بخاخ الربو في الحقيبة", "Inhaler in schoolbag",
+            "ربو خفيف", "Mild asthma",
             None,
         ),
         (
@@ -111,6 +122,7 @@ def _seed(c):
             16, 11, "11أ", "11A", "الحادي عشر ألف", "Grade 11 — Section A",
             "لا يوجد", "none",
             "سكري نوع 1", "type 1 diabetes",
+            "قلم الأنسولين", "Insulin pen",
             "+974-5551-0004", "monitor",
             "تحمل قلم الأنسولين دائماً", "Always carries insulin pen",
             None,
@@ -122,6 +134,7 @@ def _seed(c):
             14, 9, "9ب", "9B", "التاسع باء", "Grade 9 — Section B",
             "لا يوجد", "none",
             "إغماء متكرر", "recurrent syncope",
+            "", "",
             "+974-5551-0005", "urgent",
             "تاريخ إغماء — مراقبة عند الوقوف المفاجئ",
             "Syncope history — monitor on sudden standing",
@@ -130,7 +143,7 @@ def _seed(c):
     ]
     c.executemany(
         """INSERT OR IGNORE INTO patients VALUES
-        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         patients,
     )
 
@@ -198,6 +211,7 @@ def patient_context(patient_id: int) -> str:
         f"الصف: {p['class_lib']} ({p['class_code_en']})",
         f"العمر: {p['age']} سنة",
         f"الحساسية: {p['allergies']}",
+        f"الدواء المعتمد: {p.get('medication', '') or 'لا يوجد'}",
         f"الأمراض المزمنة: {p['chronic']}",
         f"مستوى الطوارئ: {p['urgency_level']}",
         f"ملاحظات: {p['notes']}",
